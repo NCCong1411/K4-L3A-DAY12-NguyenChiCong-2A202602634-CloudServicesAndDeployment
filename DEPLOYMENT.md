@@ -10,17 +10,17 @@
 
 | Mục | Nội dung |
 |-----|----------|
-| Họ và tên | (điền họ tên) |
-| Mã học viên | (điền mã học viên) |
-| Repo | (điền link repo K4-L3A-DAY12-HoVaTen-MSSV-CloudServicesAndDeployment) |
+| Họ và tên | Nguyễn Chí Công |
+| Mã học viên | 2A202602634 |
+| Repo | https://github.com/NCCong1411/K4-L3A-DAY12-NguyenChiCong-2A202602634-CloudServicesAndDeployment |
 
 ## Service
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | https://TODO-thay-bang-url-that.up.railway.app |
-| Platform | Railway / Render / Cloud Run — (điền platform bạn dùng) |
-| Ngày deploy | (điền ngày) |
+| Public URL | Chưa có — đang dùng `http://localhost:8000` theo phương án dự phòng |
+| Platform | Docker Compose local fallback; cấu hình Railway và Render đã sẵn sàng |
+| Ngày kiểm tra local | 2026-09-28 |
 
 ## Biến Môi Trường Đã Set Trên Cloud
 
@@ -30,7 +30,7 @@ Ghi tên biến và **nguồn giá trị**, không ghi giá trị:
 |------|--------|---------|
 | `PORT` | ✅ | platform tự gán |
 | `AGENT_API_KEY` | ✅ | đặt trong dashboard, không nằm trong repo |
-| `REDIS_URL` | ✅ | (điền: Redis add-on của platform / Upstash / ...) |
+| `REDIS_URL` | ✅ | Redis service trong Docker Compose (`redis://redis:6379/0`) |
 | `RATE_LIMIT_PER_MINUTE` | ✅ | 10 |
 | `MONTHLY_BUDGET_USD` | ✅ | 10.0 |
 | `LOG_LEVEL` | ✅ | INFO |
@@ -72,8 +72,25 @@ done; echo
 
 Dán output của các lệnh trên vào đây:
 
-```
-(điền output)
+```text
+GET /health
+200 {"status":"ok","service":"day12-agent","version":"1.0.0"}
+
+GET /ready
+200 {"status":"ready","redis":true}
+
+POST /ask không có X-API-Key
+401 {"detail":"invalid or missing API key"}
+
+POST /ask có X-API-Key và X-User-Id
+200; response có answer, user_id, history_length, cost_usd và tokens
+
+Kiểm tra sliding window với user mới
+10 request đầu: 200; request 11 và 12: 429 Too Many Requests
+
+docker compose ps
+3 container agent healthy trên các cổng 8000, 8001, 8002;
+1 container redis healthy trên cổng 6379.
 ```
 
 ## Ảnh Chụp Màn Hình
@@ -96,6 +113,9 @@ Không đăng ký được tài khoản cloud? Vẫn nộp được bài, nhưng
    `http://localhost:8000`
 5. Ghi rõ lý do không deploy được vào phần dưới đây:
 
-```
-(điền lý do nếu dùng phương án dự phòng, ngược lại xóa mục này)
+```text
+Chưa có phiên đăng nhập hoặc quyền tạo service trên tài khoản Railway/Render
+trong môi trường làm bài. Vì không thể xác minh một URL cloud thật mà không có
+tài khoản của học viên, bài hiện dùng phương án Docker Compose cục bộ. Không có
+URL, output hay lỗi cloud nào được tạo giả.
 ```
