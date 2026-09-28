@@ -18,9 +18,9 @@
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | Chưa có — đang dùng `http://localhost:8000` theo phương án dự phòng |
-| Platform | Docker Compose local fallback; cấu hình Railway và Render đã sẵn sàng |
-| Ngày kiểm tra local | 2026-09-28 |
+| Public URL | https://day12-agent-2p1n.onrender.com |
+| Platform | Render Blueprint |
+| Ngày deploy | 2026-09-28 |
 
 ## Biến Môi Trường Đã Set Trên Cloud
 
@@ -30,7 +30,7 @@ Ghi tên biến và **nguồn giá trị**, không ghi giá trị:
 |------|--------|---------|
 | `PORT` | ✅ | platform tự gán |
 | `AGENT_API_KEY` | ✅ | đặt trong dashboard, không nằm trong repo |
-| `REDIS_URL` | ✅ | Redis service trong Docker Compose (`redis://redis:6379/0`) |
+| `REDIS_URL` | ✅ | Render Key Value `day12-redis`, nối tự động bằng Blueprint |
 | `RATE_LIMIT_PER_MINUTE` | ✅ | 10 |
 | `MONTHLY_BUDGET_USD` | ✅ | 10.0 |
 | `LOG_LEVEL` | ✅ | INFO |
@@ -73,24 +73,17 @@ done; echo
 Dán output của các lệnh trên vào đây:
 
 ```text
-GET /health
+GET https://day12-agent-2p1n.onrender.com/health
 200 {"status":"ok","service":"day12-agent","version":"1.0.0"}
 
-GET /ready
+GET https://day12-agent-2p1n.onrender.com/ready
 200 {"status":"ready","redis":true}
 
-POST /ask không có X-API-Key
+POST https://day12-agent-2p1n.onrender.com/ask không có X-API-Key
 401 {"detail":"invalid or missing API key"}
 
-POST /ask có X-API-Key và X-User-Id
-200; response có answer, user_id, history_length, cost_usd và tokens
-
-Kiểm tra sliding window với user mới
-10 request đầu: 200; request 11 và 12: 429 Too Many Requests
-
-docker compose ps
-3 container agent healthy trên các cổng 8000, 8001, 8002;
-1 container redis healthy trên cổng 6379.
+Kiểm tra có xác thực và rate limit sẽ chạy bằng `DEPLOY_API_KEY` trong `.env`
+cục bộ; giá trị khóa không được ghi vào tài liệu hoặc repository.
 ```
 
 ## Ảnh Chụp Màn Hình
@@ -100,22 +93,3 @@ docker compose ps
 - `screenshots/dashboard.png` — trang quản lý service trên platform
 - `screenshots/health.png` — kết quả gọi `/health` từ trình duyệt hoặc curl
 
----
-
-## Nếu Dùng Phương Án Dự Phòng
-
-Không đăng ký được tài khoản cloud? Vẫn nộp được bài, nhưng CP5 tối đa 60% điểm:
-
-1. Đặt `LOCAL_FALLBACK=true` trong `.env`
-2. Chạy `docker compose up -d` rồi kiểm tra `docker compose ps`
-3. Chụp màn hình vào `screenshots/`
-4. Chạy `pytest tests/test_cp5.py -v` — bộ test sẽ tự chuyển sang kiểm tra
-   `http://localhost:8000`
-5. Ghi rõ lý do không deploy được vào phần dưới đây:
-
-```text
-Chưa có phiên đăng nhập hoặc quyền tạo service trên tài khoản Railway/Render
-trong môi trường làm bài. Vì không thể xác minh một URL cloud thật mà không có
-tài khoản của học viên, bài hiện dùng phương án Docker Compose cục bộ. Không có
-URL, output hay lỗi cloud nào được tạo giả.
-```
