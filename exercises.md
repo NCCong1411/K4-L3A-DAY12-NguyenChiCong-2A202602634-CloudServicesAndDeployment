@@ -163,7 +163,11 @@ Ghi lại **một** lỗi bạn gặp khi deploy lên cloud (build fail, health 
 timeout, sai REDIS_URL, app không đọc `$PORT`...): thông báo lỗi là gì, bạn
 tìm ra nguyên nhân bằng cách nào, và sửa ra sao?
 
-Tại thời điểm hoàn thiện phần local, tôi chưa thực hiện deploy lên tài khoản
-cloud nên chưa có lỗi CP5 thực tế để ghi lại. Tôi không điền một lỗi giả. Sau
-khi deploy Railway/Render, mục này cần được cập nhật bằng nguyên văn thông báo
-trong build/runtime log, cách khoanh vùng nguyên nhân và thay đổi đã sửa lỗi.
+Lỗi thực tế tôi gặp nằm ở lần chạy GitHub Actions đầu tiên: job `Deploy to Render`
+dừng tại bước `Trigger Render deploy` với `curl: (3) URL rejected: No host part in
+the URL`. Tôi mở log của job và thấy biến truyền cho `curl` rỗng, từ đó xác định
+repository chưa có secret chứa Render Deploy Hook URL. Tôi sửa workflow để chỉ
+chạy job deploy khi biến `DEPLOY_ENABLED=true`, sau đó thêm secret
+`RENDER_DEPLOY_HOOK_URL` và biến `PUBLIC_URL`. Lần chạy tiếp theo đã hoàn thành cả
+ba job test, build và deploy; bước smoke test gọi `/health` thành công trên URL
+Render thật.
