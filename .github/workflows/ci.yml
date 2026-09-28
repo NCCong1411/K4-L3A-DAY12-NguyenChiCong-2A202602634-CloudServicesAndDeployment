@@ -58,8 +58,8 @@ jobs:
     steps:
       - name: Trigger Render deploy
         env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-        run: curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK"
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
 
       - name: Wait for rollout
         run: sleep 45
